@@ -23,3 +23,8 @@ curl http://localhost:3000/pokemon/pokemon-name-here
 ```
 curl http://localhost:3000/pokemon/translated/pokemon-name-here
 ```
+
+## Things to consider when and if the code reaches production
+- Integrate to an alerting / monitoring service such as Datadog in order to capture logs
+- Use GitHub Actions to trigger tests when pushing / requesting a PR
+- Use a service to scan the codebase for vulnerabilities
