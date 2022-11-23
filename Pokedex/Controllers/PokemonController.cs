@@ -34,7 +34,7 @@ public class PokemonController : ControllerBase
     
     [HttpGet(Name = "GetTranslatedPokemon")]
     [Route("translated/{name}")]
-    public async Task<ActionResult<Pokemon>> Translated(string name)
+    public async Task<ActionResult<Pokemon>> GetTranslated(string name)
     {
         var pokemon = await _pokemonService.FindTranslated(name);
 
