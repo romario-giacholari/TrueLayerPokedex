@@ -1,7 +1,10 @@
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Pokedex.Response.FunTranslations;
 
 namespace Pokedex.Services.FunTranslation;

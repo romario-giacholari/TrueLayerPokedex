@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Pokedex.Services.FunTranslation;
 using Pokedex.Services.Pokemon;
 

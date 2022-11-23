@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace Pokedex.Services.FunTranslation;
 
 public interface IFunTranslationService
