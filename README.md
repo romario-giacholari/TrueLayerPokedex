@@ -1,6 +1,6 @@
 # Pokedex
 
-## Prerequisities
+## Prerequisites
 - Install docker https://docs.docker.com/get-docker/
 
 ## How to run the application

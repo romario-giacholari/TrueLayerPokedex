@@ -28,10 +28,10 @@ public class PokemonService: IPokemonService
         if (string.IsNullOrEmpty(stringContent) || response.StatusCode != HttpStatusCode.OK) return null;
         var content = JsonNode.Parse(stringContent);
 
-        var pokemonName = content!["name"]!.GetValue<string>();
-        var descriptions = content!["flavor_text_entries"]!.Deserialize<List<Description>>();
+        var pokemonName = content!["name"]!?.GetValue<string>();
+        var descriptions = content!["flavor_text_entries"]!?.Deserialize<List<Description>>();
         var description = "";
-        var habitat = content!["habitat"]!?.GetValue<string>();
+        var habitat = content!["habitat"]!?.Deserialize<Habitat>();
         var isLegendary = content!["is_legendary"]!.GetValue<bool>();
 
         foreach (var d in descriptions)
@@ -46,10 +46,9 @@ public class PokemonService: IPokemonService
         {
             Name = pokemonName,
             Description = description,
-            Habitat = habitat,
+            Habitat = habitat?.name,
             IsLegendary = isLegendary
         };
-
     }
 
     public async Task<Pokedex.Pokemon?> FindTranslated(string name)
