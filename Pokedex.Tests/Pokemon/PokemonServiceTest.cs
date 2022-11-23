@@ -15,13 +15,14 @@ public class PokemonServiceTest
     private readonly Mock<IHttpClientFactory> _httpClientFactoryMock = new();
     private readonly Mock<IYodaTranslationService> _yodaTranslationServiceMock = new();
     private readonly Mock<IShakespeareTranslationService> _shakespeareTranslationServiceMock = new();
-    private readonly MockHttpMessageHandler _handlerMock = new MockHttpMessageHandler();
+    private readonly MockHttpMessageHandler _handlerMock = new();
 
     [Fact]
-    public async void Test_Find_Returns_A_Pokemon_When_It_Exists()
+    public async void Test_It_Returns_A_Pokemon_When_It_Exists()
     {
         // Arrange
-        _handlerMock.When("https://pokeapi.co/api/v2/pokemon-species/pikachu")
+        var pokemonName = "pikachu";
+        _handlerMock.When($"https://pokeapi.co/api/v2/pokemon-species/{pokemonName}")
             .Respond(HttpStatusCode.OK, JsonContent.Create(new
             {
                 flavor_text_entries = new List<object>
@@ -42,7 +43,7 @@ public class PokemonServiceTest
                     url = ""
                 },
                 is_legendary = false,
-                name = "pikachu"
+                name = pokemonName
             }));
         
         _httpClientFactoryMock.Setup(x => x.CreateClient("Pokemon"))
@@ -57,11 +58,11 @@ public class PokemonServiceTest
             _shakespeareTranslationServiceMock.Object);
         
         // Act
-        var pokemon = await pokemonService.Find("pikachu");
+        var pokemon = await pokemonService.Find(pokemonName);
         
         // Assert
         Assert.NotNull(pokemon);
-        Assert.Equal("pikachu", pokemon?.Name);
+        Assert.Equal(pokemonName, pokemon?.Name);
         Assert.Equal("some description here..", pokemon?.Description);
         Assert.Equal("a habitat", pokemon?.Habitat);
         Assert.False(pokemon?.IsLegendary);
