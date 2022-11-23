@@ -14,38 +14,55 @@ public class PokemonService: IPokemonService
 {
     private const string En = "en";
     private readonly string _endpoint;
+    private readonly ILogger<PokemonService> _logger;
     private readonly IFunTranslationService _funTranslationService;
     
-    public PokemonService(IConfiguration configuration, IFunTranslationService funTranslationService)
+    public PokemonService(ILogger<PokemonService> logger, IConfiguration configuration, IFunTranslationService funTranslationService)
     {
+        _logger = logger;
         _endpoint = configuration["PokemonService:Endpoint"];
         _funTranslationService = funTranslationService;
     }
     
     public async Task<Pokedex.Pokemon?> Find(string name)
     {
+        if (string.IsNullOrEmpty(_endpoint))
+        {
+            _logger.LogWarning("The endpoint could not be found or is empty at [PokemonService:Endpoint]");
+            
+            return null;
+        }
+        
         var uri = $"{_endpoint}/{name}";
         var client = new HttpClient();
         var response = await client.GetAsync(uri);
         var stringContent = response.Content.ReadAsStringAsync().Result;
 
-        if (string.IsNullOrEmpty(stringContent) || response.StatusCode != HttpStatusCode.OK) return null;
+        if (string.IsNullOrEmpty(stringContent) || response.StatusCode != HttpStatusCode.OK)
+        {
+            _logger.LogInformation("Pokemon [{Name}] could not be found", name);
+            
+            return null;
+        }
         var content = JsonNode.Parse(stringContent);
 
-        var pokemonName = content!["name"]!?.GetValue<string>();
-        var descriptions = content!["flavor_text_entries"]!?.Deserialize<List<Description>>();
+        var pokemonName = content!["name"]!.GetValue<string>();
+        var descriptions = content!["flavor_text_entries"]!.Deserialize<List<Description>>();
         var description = "";
         var habitat = content!["habitat"]!?.Deserialize<Habitat>();
         var isLegendary = content!["is_legendary"]!.GetValue<bool>();
 
-        foreach (var d in descriptions)
+        if (descriptions?.Count > 0)
         {
-            if (d.language.name != En) continue;
-            description = d.flavor_text;
+            foreach (var d in descriptions)
+            {
+                if (d.language.name != En) continue;
+                description = d.flavor_text;
                 
-            break;
+                break;
+            }
         }
-            
+
         return new Pokedex.Pokemon
         {
             Name = pokemonName,
