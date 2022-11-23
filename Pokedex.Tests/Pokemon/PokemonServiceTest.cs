@@ -1,7 +1,6 @@
-using Microsoft.Extensions.Logging;
 using Pokedex.Services.Pokemon;
 
-namespace Pokedex.Tests;
+namespace Pokedex.Tests.Pokemon;
 
 public class PokemonServiceTest
 {

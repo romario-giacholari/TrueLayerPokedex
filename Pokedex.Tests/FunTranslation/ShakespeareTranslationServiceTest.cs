@@ -5,7 +5,7 @@ using Moq;
 using Pokedex.Services.FunTranslation;
 using RichardSzalay.MockHttp;
 
-namespace Pokedex.Tests;
+namespace Pokedex.Tests.FunTranslation;
 
 public class ShakespeareTranslationServiceTest
 {
