@@ -1,10 +1,6 @@
-using System.Collections.Generic;
 using System.Net;
-using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 using Pokedex.Response.Pokemon;
 using Pokedex.Services.FunTranslation;
 
@@ -13,34 +9,31 @@ namespace Pokedex.Services.Pokemon;
 public class PokemonService: IPokemonService
 {
     private const string En = "en";
-    private readonly string _endpoint;
     private readonly ILogger<PokemonService> _logger;
-    private readonly IFunTranslationService _funTranslationService;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IYodaTranslationService _yodaTranslationService;
+    private readonly IShakespeareTranslationService _shakespeareTranslationService;
     
-    public PokemonService(ILogger<PokemonService> logger, IConfiguration configuration, IFunTranslationService funTranslationService)
+    public PokemonService(ILogger<PokemonService> logger, 
+        IHttpClientFactory httpClientFactory, 
+        IYodaTranslationService yodaTranslationService, 
+        IShakespeareTranslationService shakespeareTranslationService)
     {
         _logger = logger;
-        _endpoint = configuration["PokemonService:Endpoint"];
-        _funTranslationService = funTranslationService;
+        _httpClientFactory = httpClientFactory;
+        _yodaTranslationService = yodaTranslationService;
+        _shakespeareTranslationService = shakespeareTranslationService;
     }
     
     public async Task<Pokedex.Pokemon?> Find(string name)
     {
-        if (string.IsNullOrEmpty(_endpoint))
-        {
-            _logger.LogWarning("The endpoint could not be found or is empty at [PokemonService:Endpoint]");
-            
-            return null;
-        }
-        
-        var uri = $"{_endpoint}/{name}";
-        var client = new HttpClient();
-        var response = await client.GetAsync(uri);
+        var client = _httpClientFactory.CreateClient("Pokemon");
+        var response = await client.GetAsync($"{name}");
         var stringContent = response.Content.ReadAsStringAsync().Result;
 
         if (string.IsNullOrEmpty(stringContent) || response.StatusCode != HttpStatusCode.OK)
         {
-            _logger.LogInformation("Pokemon [{Name}] could not be found", name);
+            _logger.LogWarning("Pokemon [{Name}] could not be found", name);
             
             return null;
         }
@@ -79,11 +72,11 @@ public class PokemonService: IPokemonService
         if (pokemon == null) return pokemon;
         if (pokemon.IsLegendary || pokemon.Habitat == "cave")
         {
-            pokemon.Description = await _funTranslationService.Translate(pokemon.Description, "Yoda") ?? pokemon.Description;
+            pokemon.Description = await _yodaTranslationService.Translate(pokemon.Description) ?? pokemon.Description;
         }
         else
         {
-            pokemon.Description = await _funTranslationService.Translate(pokemon.Description, "Shakespeare") ?? pokemon.Description;
+            pokemon.Description = await _shakespeareTranslationService.Translate(pokemon.Description) ?? pokemon.Description;
         }
 
         return pokemon;

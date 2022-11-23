@@ -1,44 +1,32 @@
 using System.Net;
-using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 using Pokedex.Response.FunTranslations;
 
 namespace Pokedex.Services.FunTranslation;
 
-public class FunTranslationService: IFunTranslationService
+public class ShakespeareTranslationService: IShakespeareTranslationService
 {
-    private readonly ILogger<FunTranslationService> _logger;
-    private readonly IConfiguration _config;
+    private readonly ILogger<ShakespeareTranslationService> _logger;
+    private readonly IHttpClientFactory _httpClientFactory;
 
-    public FunTranslationService( ILogger<FunTranslationService> logger, IConfiguration configuration)
+    public ShakespeareTranslationService(ILogger<ShakespeareTranslationService> logger, IHttpClientFactory httpClientFactory)
     {
         _logger = logger;
-        _config = configuration;
+        _httpClientFactory = httpClientFactory;
     }
     
-    public async Task<string?> Translate(string text, string translationType)
+    public async Task<string?> Translate(string text)
     {
-        var endpoint = _config[$"FunTranslations:{translationType}:Endpoint"];
-
-        if (string.IsNullOrEmpty(endpoint))
-        {
-            _logger.LogWarning("The endpoint could not be found or is empty at [FunTranslations:{TranslationType}:Endpoint]", translationType);
-            
-            return null;
-        }
-        
         var content = new
         {
             text = text
         };
         var json = JsonSerializer.Serialize(content);
         var data = new StringContent(json, Encoding.UTF8, "application/json");
-        var client = new HttpClient();
-        var response = client.PostAsync(endpoint, data).Result;
+        var client = _httpClientFactory.CreateClient("Shakespeare");
+        var response = client.PostAsync(client.BaseAddress, data).Result;
         var responseContent = response.Content.ReadAsStringAsync().Result;
 
         if (string.IsNullOrEmpty(responseContent) || response.StatusCode != HttpStatusCode.OK)
