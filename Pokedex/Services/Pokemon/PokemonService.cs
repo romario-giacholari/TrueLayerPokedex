@@ -69,7 +69,7 @@ public class PokemonService: IPokemonService
     {
         var pokemon = await Find(name);
 
-        if (pokemon == null) return pokemon;
+        if (pokemon == null) return null;
         if (pokemon.IsLegendary || pokemon.Habitat == "cave")
         {
             pokemon.Description = await _yodaTranslationService.Translate(pokemon.Description) ?? pokemon.Description;
