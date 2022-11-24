@@ -13,6 +13,10 @@ docker build -t pokedex:latest .
 ```
 docker run --rm -it -p 5000:80 pokedex:latest
 ```
+If the port is already in use try another one and in step 4, reference the selected port: 
+```
+docker run --rm -it -p 3000:80 pokedex:latest
+```
 4. Finally in your browser, go to 
 ```
 http://localhost:5000/pokemon/pokemon-name-here
@@ -47,3 +51,5 @@ docker run pokedex-tests:latest
 
 ## Useful Links / References
 [.Net Core + Docker](https://joehonour.medium.com/a-guide-to-setting-up-a-net-core-project-using-docker-with-integrated-unit-and-component-tests-a326ca5a0284)
+[Pokemon API](https://pokeapi.co/)
+[Fun Translations API](https://pokeapi.co/)
